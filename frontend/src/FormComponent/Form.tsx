@@ -37,11 +37,13 @@ const Form: React.FC<{}> = () => {
     const { name, value, type, checked } = event.target;
     dispatch(setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value }));
 
+    
     if (name === 'phone' && !value.trim().match(/^\+\d{0,20}$/)) {
       setErrors({ ...errors, [name]: true });
     } else {
       setErrors({ ...errors, [name]: false });
     }
+
   };
 
   const isFormValid = () => {
@@ -157,7 +159,7 @@ const Form: React.FC<{}> = () => {
               <div className="error-message">Required</div>
             )}
             {errors.phone && formData.phone.trim() !== '' && !formData.phone.trim().match(/^\+\d{10,20}$/) && (
-              <div className="error-message">Bad format e.g +3858 8888 8888</div>
+              <div className="error-message">Bad format e.g +385 8888 8888 min 10 nums</div>
             )}
           </div>
 
