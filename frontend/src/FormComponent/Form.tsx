@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFormData } from '../redux/formSlice';
 import './Form.css';
-import SuccessMessage from '../SucessMessage/SuccessMessage';
+import SuccessMessage from "../SucessMessage/SuccessMessage";
 
 const Form: React.FC<{}> = () => {
   const formData = useSelector((state: any) => state.form.formData);
@@ -18,12 +18,10 @@ const Form: React.FC<{}> = () => {
     checkbox: false,
   });
 
-
-
-   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     let hasError = false;
-  
+
     if (value.trim() === '') {
       hasError = true;
     } else if (name === 'phone' && !value.trim().match(/^\+\d{10,20}$/)) {
@@ -31,10 +29,9 @@ const Form: React.FC<{}> = () => {
     } else if (name === 'email' && !value.trim().match(/^\S+@\S+\.\S+/)) {
       hasError = true;
     }
-  
+
     setErrors({ ...errors, [name]: hasError });
   };
-  
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
@@ -140,7 +137,7 @@ const Form: React.FC<{}> = () => {
               onBlur={handleBlur}
               className={`form-input${errors.address ? ' error' : ''}`}
             />
-            {errors.address &&(
+            {errors.address && (
               <div className="error-message">Required Address</div>
             )}
           </div>
@@ -156,13 +153,12 @@ const Form: React.FC<{}> = () => {
               onBlur={handleBlur}
               className={`form-input${errors.phone ? ' error' : ''}`}
             />
-              {errors.phone && !formData.phone.trim() && (
+            {errors.phone && !formData.phone.trim() && (
               <div className="error-message">Required</div>
             )}
             {errors.phone && formData.phone.trim() !== '' && !formData.phone.trim().match(/^\+\d{10,20}$/) && (
               <div className="error-message">Bad format e.g +3858 8888 8888</div>
             )}
-            
           </div>
 
           <div className="form-group">
@@ -177,7 +173,6 @@ const Form: React.FC<{}> = () => {
               onBlur={handleBlur}
               className={`form-input${errors.email ? ' error' : ''}`}
             />
-            
             {errors.email && !formData.email.trim() && <div className="error-message">Required</div>}
             {errors.email && formData.email.trim() !== '' && !formData.email.trim().match(/^\S+@\S+\.\S+/) && (
               <div className="error-message">Bad format e.g john@doe.com</div>
@@ -208,4 +203,5 @@ const Form: React.FC<{}> = () => {
 };
 
 export default Form;
+
 
