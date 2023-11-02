@@ -3,7 +3,7 @@ import { FormState } from './FormState';
 
 
 
-const initialState : FormState = {
+const initialState: FormState = {
   formData: {
     firstName: '',
     lastName: '',
@@ -13,14 +13,15 @@ const initialState : FormState = {
     checkbox: false,
   },
   validationErrors: {
-    firstName: '',
-    lastName: '',
-    address: '',
-    phone: '',
-    email: '',
-    checkbox: '',
+    firstName: false,
+    lastName: false,
+    address: false,
+    phone: false,
+    email: false,
+    checkbox: false,
   },
 };
+
 
 
 
@@ -40,5 +41,5 @@ const initialState : FormState = {
     },
   });
   
-  export const { setFormData } = formSlice.actions;
+  export const { setFormData, setValidationErrors } = formSlice.actions;
   export default formSlice.reducer;

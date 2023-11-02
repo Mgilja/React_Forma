@@ -1,22 +1,30 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFormData } from '../redux/formSlice';
+import { setFormData, setValidationErrors } from '../redux/formSlice';
+import { FormState } from '../redux/FormState';
 import './Form.css';
 import SuccessMessage from "../SucessMessage/SuccessMessage";
 
+
 const Form: React.FC<{}> = () => {
-  const formData = useSelector((state: any) => state.form.formData);
+  // const formData = useSelector((state:any) => state.form.formData);
+  // const validationErrors = useSelector((state: any) => state.form.validationErrors);
+  const formData = useSelector((state: { form: FormState }) => state.form.formData);
+  const validationErrors = useSelector((state: { form: FormState }) => state.form.validationErrors);
+ 
   const dispatch = useDispatch();
 
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [errors, setErrors] = useState({
-    firstName: false,
-    lastName: false,
-    address: false,
-    phone: false,
-    email: false,
-    checkbox: false,
-  });
+
+
+  // const [errors, setErrors] = useState({
+  //   firstName: false,
+  //   lastName: false,
+  //   address: false,
+  //   phone: false,
+  //   email: false,
+  //   checkbox: false,
+  // });
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -30,22 +38,30 @@ const Form: React.FC<{}> = () => {
       hasError = true;
     }
 
-    setErrors({ ...errors, [name]: hasError });
+    //setErrors({ ...errors, [name]: hasError });
+    dispatch(setValidationErrors({ ...validationErrors, [name]: hasError }));
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
+
     dispatch(setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value }));
 
-    
+    let hasError = false;
+
     if (name === 'phone' && !value.trim().match(/^\+\d{0,20}$/)) {
-      setErrors({ ...errors, [name]: true });
-    } else {
-      setErrors({ ...errors, [name]: false });
+        hasError = true;
+    } else if (name === 'email' && !value.trim().match(/^\S+@\S+\.\S+/)) {
+        hasError = true;
+    } else if (type === 'checkbox' && !checked) {
+       
+        hasError = true;
     }
 
-  };
+    dispatch(setValidationErrors({ ...validationErrors, [name]: hasError }));
+};
 
+  
   const isFormValid = () => {
     return (
       formData.firstName.trim() !== '' &&
@@ -92,7 +108,7 @@ const Form: React.FC<{}> = () => {
       ) : (
         <form onSubmit={handleSubmit} className="form-container">
           <h1>Input Form</h1>
-
+  
           <div className="form-group">
             <label htmlFor="firstName">First Name</label>
             <input
@@ -103,13 +119,13 @@ const Form: React.FC<{}> = () => {
               value={formData.firstName}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={`form-input${errors.firstName ? ' error' : ''}`}
+              className={`form-input${validationErrors.firstName ? ' error' : ''}`}
             />
-            {errors.firstName && (
+            {validationErrors.firstName && (
               <div className="error-message">Required First Name</div>
             )}
           </div>
-
+  
           <div className="form-group">
             <label htmlFor="lastName">Last Name</label>
             <input
@@ -120,13 +136,13 @@ const Form: React.FC<{}> = () => {
               value={formData.lastName}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={`form-input${errors.lastName ? ' error' : ''}`}
+              className={`form-input${validationErrors.lastName ? ' error' : ''}`}
             />
-            {errors.lastName && (
+            {validationErrors.lastName && (
               <div className="error-message">Required Last Name</div>
             )}
           </div>
-
+  
           <div className="form-group">
             <label htmlFor="address">Address</label>
             <input
@@ -137,32 +153,37 @@ const Form: React.FC<{}> = () => {
               value={formData.address}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={`form-input${errors.address ? ' error' : ''}`}
+              className={`form-input${validationErrors.address ? ' error' : ''}`}
             />
-            {errors.address && (
+            {validationErrors.address && (
               <div className="error-message">Required Address</div>
             )}
           </div>
+  
+          <div className = "form-group">
+          <label htmlFor="phone">Phone</label>
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Phone number (+0000000000)"
+            value={formData.phone}
+            onChange={handleChange}
+            onBlur={handleBlur}
+           className={`form-input${validationErrors.phone ? ' error' : ''}`}
+           />
+              {validationErrors.phone && (
+                <div className ='error-message'>
+                  {formData.phone.trim() === '' ? 'Required' : 
+                  !formData.phone.trim().match(/^\+\d{10,20}$/)  ? 'Bad format e.g +385 8888 8888 min 10 numbers' :
+                  null
+                  }
+                </div>
+              )}
 
-          <div className="form-group">
-            <label htmlFor="phone">Phone</label>
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone number (+0000000000)"
-              value={formData.phone}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`form-input${errors.phone ? ' error' : ''}`}
-            />
-            {errors.phone && !formData.phone.trim() && (
-              <div className="error-message">Required</div>
-            )}
-            {errors.phone && formData.phone.trim() !== '' && !formData.phone.trim().match(/^\+\d{10,20}$/) && (
-              <div className="error-message">Bad format e.g +385 8888 8888 min 10 nums</div>
-            )}
+         
           </div>
 
+  
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
@@ -173,14 +194,21 @@ const Form: React.FC<{}> = () => {
               value={formData.email}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={`form-input${errors.email ? ' error' : ''}`}
+              className={`form-input${validationErrors.email ? ' error' : ''}`}
             />
-            {errors.email && !formData.email.trim() && <div className="error-message">Required</div>}
-            {errors.email && formData.email.trim() !== '' && !formData.email.trim().match(/^\S+@\S+\.\S+/) && (
-              <div className="error-message">Bad format e.g john@doe.com</div>
-            )}
+              {validationErrors.email && (
+                 <div className="error-message">
+                  { formData.email.trim() === '' ? 'Required'  : !formData.email.trim().match(/^\S+@\S+\.\S+/)
+                   ? 'Bad format e.g john@doe.com': null 
+                   }
+                 </div>
+                
+                )}
+        
+          
+               
           </div>
-
+  
           <div className="form-group">
             <input
               type="checkbox"
@@ -190,11 +218,11 @@ const Form: React.FC<{}> = () => {
               onChange={handleChange}
             />
             <label htmlFor="checkbox">I agree to the terms and conditions</label>
-            {errors.checkbox && !formData.checkbox && (
+            {validationErrors.checkbox && !formData.checkbox && (
               <div className="error-message">Required checkbox confirmation</div>
             )}
           </div>
-
+  
           <button type="submit" className="form-button" disabled={!isFormValid()}>
             Submit
           </button>
@@ -202,6 +230,7 @@ const Form: React.FC<{}> = () => {
       )}
     </div>
   );
+  
 };
 
 export default Form;
